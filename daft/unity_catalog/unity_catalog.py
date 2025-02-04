@@ -90,12 +90,13 @@ class UnityCatalog:
 
         return self._paginate_to_completion(_paginated_list_tables)
 
-    def load_table(self, table_name: str, new_table_storage_path: str | None = None) -> UnityCatalogTable:
+    def load_table(self, table_name: str, new_table_storage_path: str | None = None, operation: Literal["READ", "READ_WRITE"] = "READ_WRITE") -> UnityCatalogTable:
         """Loads an existing Unity Catalog table. If the table is not found, and information is provided in the method to create a new table, a new table will be attempted to be registered.
 
         Args:
             table_name (str): Name of the table in Unity Catalog in the form of dot-separated, 3-level namespace
             new_table_storage_path (str, optional): Cloud storage path URI to register a new external table using this path. Unity Catalog will validate if the path is valid and authorized for the principal, else will raise an exception.
+            operation (Literal["READ", "READ_WRITE"], optional): Intention of how the table with be operated upon. Defaults to "READ_WRITE".
 
         Returns:
             UnityCatalogTable
@@ -138,7 +139,7 @@ class UnityCatalog:
         storage_location = table_info.storage_location
         # Grab credentials from Unity catalog and place it into the Table
         temp_table_credentials = self._client.temporary_table_credentials.create(
-            operation="READ_WRITE", table_id=table_id
+            operation=operation, table_id=table_id
         )
 
         scheme = urlparse(storage_location).scheme
